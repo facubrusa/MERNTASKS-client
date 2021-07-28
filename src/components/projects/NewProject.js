@@ -1,23 +1,24 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useContext, useEffect } from 'react'
 import ProjectContext from '../../context/projects/ProjectContext';
 const NewProject = () => {
 
     const projectContext = useContext(ProjectContext);
-    const { form, formerror, formproject, showForm, saveProjects, addProject, validateForm } = projectContext;
+    const { form, editproject, formerror, formproject, project, showForm, saveProject, addProject, validateForm, editProject } = projectContext;
 
-    const [project, saveProject] = useState({
-        name: ''
-    });
+    const { name } = formproject;
 
-    console.log(project);
-    console.log(formproject);
-    const { name } = project;
+    let actualProject;
+    if(project) {
+        // Apply array destructuring
+        [ actualProject ] = project;
+    }
+
+    useEffect(() => {
+        // Reload the component when i edit the project name
+    }, [editproject]);
 
     const handleChange = e => {
-        saveProject({
-            ...project,
-            [e.target.name] : e.target.value
-        });
+        saveProject(e.target);
     }
 
     const handleSubmit = e => {
@@ -28,13 +29,12 @@ const NewProject = () => {
             validateForm();
             return;
         }
-        // Add to state
-        addProject(project);
-
-        // Reset the form
-        saveProject({
-            name: 'asdasd'
-        });
+        // Add to state and Reset the form
+        if(editproject){
+            editProject(actualProject._id, formproject);
+        } else {
+            addProject(formproject);
+        }
     }
 
 
@@ -64,7 +64,7 @@ const NewProject = () => {
                         <input 
                             type="submit"
                             className="btn btn-primario btn-block"
-                            value="Add Project"
+                            value={ editproject ? 'Edit Project' : 'Add Project'}
                         />
                     </form>
                 ) : null 

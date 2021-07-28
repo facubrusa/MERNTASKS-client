@@ -2,13 +2,23 @@ import React, { useReducer } from 'react';
 
 import ProjectContext from './ProjectContext';
 import ProjectReducer from './ProjectReducer';
-import { SHOW_FORM_PROJECT, FORM_PROJECT, GET_PROJECTS, ADD_PROJECT, VALIDATE_FORM, ACTUAL_PROJECT, DELETE_PROJECT, ERROR_PROJECT } from '../../types/index';
+import { SHOW_FORM_PROJECT, 
+    FORM_PROJECT,
+    GET_PROJECTS, 
+    ADD_PROJECT, 
+    VALIDATE_FORM, 
+    ACTUAL_PROJECT, 
+    EDIT_FORM_PROJECT,
+    DELETE_PROJECT, 
+    EDIT_PROJECT,
+    ERROR_PROJECT } from '../../types/index';
 import clientAxios from '../../config/Axios';
 
 const ProjectState = props => {
 
     const initialState = { 
         form: false,
+        editproject: false,
         projects : [],
         formerror: false,
         project: null,
@@ -29,10 +39,10 @@ const ProjectState = props => {
     }
 
     // Manage the name of the new project
-    const saveProjects = (e) => {
+    const saveProject = (target) => {
         dispatch({
             type: FORM_PROJECT,
-            payload: e
+            payload: target
         });
     }
 
@@ -46,11 +56,18 @@ const ProjectState = props => {
                 payload: response.data.projects
             });
         } catch (error) {
-            console.log(error);
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_PROJECT,
+                payload: alert
+            });
         }
     }
 
-    // Add project to state
+    // Add project and reset form
     const addProject = async (project) => {
         try {
             const response = await clientAxios.post('/api/projects', project);
@@ -60,7 +77,14 @@ const ProjectState = props => {
                 payload: response.data
             });
         } catch (error) {
-            console.log(error);
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_PROJECT,
+                payload: alert
+            });
         }
     }
 
@@ -79,9 +103,32 @@ const ProjectState = props => {
         });
     }
 
-    // Edit project
-    const editProject = async idProject => {
-        console.log(idProject);
+    // Edit form project
+    const editFormProject = (name) => {
+        dispatch({
+            type: EDIT_FORM_PROJECT,
+            payload: name
+        });
+    }
+
+    const editProject = async (idProject, project) => {
+        try {
+            await clientAxios.put(`/api/projects/${idProject}`, project);
+            dispatch({
+                type: EDIT_PROJECT
+            });
+
+            getProjects(); //Refresh the name of the edited project
+        } catch (error) {
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_PROJECT,
+                payload: alert
+            });
+        }
     }
 
     // Delete project
@@ -109,19 +156,21 @@ const ProjectState = props => {
         <ProjectContext.Provider
             value={{
                 form: state.form,
+                editproject: state.editproject,
                 projects: state.projects,
                 formerror: state.formerror,
                 project: state.project,
                 message: state.message,
                 formproject: state.formproject,
-                showForm: showForm,
-                saveProjects: saveProjects,
-                getProjects: getProjects,
-                addProject: addProject,
-                validateForm: validateForm,
-                actualProject: actualProject,
-                editProject: editProject,
-                deleteProject: deleteProject
+                showForm,
+                saveProject,
+                getProjects,
+                addProject,
+                validateForm,
+                actualProject,
+                editFormProject,
+                editProject,
+                deleteProject
             }}
         >
             {props.children}

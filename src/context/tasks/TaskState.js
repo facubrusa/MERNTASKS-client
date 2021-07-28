@@ -3,13 +3,21 @@ import React, { useReducer } from 'react';
 import TaskContext from './TaskContext';
 import TaskReducer from './TaskReducer';
 import clientAxios from '../../config/Axios';
-import { PROJECT_TASKS, ADD_TASK, VALIDATE_TASK, DELETE_TASK, ACTUAL_TASK, EDIT_TASK, CLEAN_TASK } from '../../types/index';
+import { PROJECT_TASKS, 
+    ADD_TASK, 
+    VALIDATE_TASK, 
+    DELETE_TASK, 
+    ACTUAL_TASK, 
+    EDIT_TASK, 
+    CLEAN_TASK,
+    ERROR_TASK } from '../../types/index';
 
 const TaskState = props => {
     const initialState = {
         projecttask: [],
         errortask: false,
-        actualtask: null
+        actualtask: null,
+        message: null
     };
 
     // Dispatch for ejecute actions
@@ -25,7 +33,14 @@ const TaskState = props => {
                 payload: response.data.tasks
             });
         } catch (error) {
-            console.log(error);
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_TASK,
+                payload: alert
+            });
         }
 
     }
@@ -34,13 +49,20 @@ const TaskState = props => {
     const addTask = async task => {
         try {
             const response = await clientAxios.post('/api/tasks', task);
-            console.log(response);
+            //console.log(response);
             dispatch({
                 type: ADD_TASK,
                 payload: response.data
             });
         } catch (error) {
-            console.log(error);
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_TASK,
+                payload: alert
+            });
         }
         
     }
@@ -57,28 +79,42 @@ const TaskState = props => {
         /* console.log(idTask);
         console.log(project); */
         try {
-            const response = await clientAxios.delete(`/api/tasks/${idTask}`, { params: { project }});
-            console.log(response);
+            await clientAxios.delete(`/api/tasks/${idTask}`, { params: { project }});
+            //console.log(response);
             dispatch({
                 type: DELETE_TASK,
                 payload: idTask
             });
         } catch (error) {
-            console.log(error);
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_TASK,
+                payload: alert
+            });
         }
     }
 
     // Edit status and modify task
     const editActualTask = async task => {
         try {
-            const response = await clientAxios.put(`/api/tasks/${task._id}`, task)
-            console.log(response);
+            await clientAxios.put(`/api/tasks/${task._id}`, task)
+            //console.log(response);
             dispatch({
                 type: EDIT_TASK,
                 payload: task
             });
         } catch (error) {
-            console.log(error);
+            const alert = {
+                msg: 'Ops! Something failed',
+                category: 'alert-error'
+            };
+            dispatch({
+                type: ERROR_TASK,
+                payload: alert
+            });
         }
     }
 
@@ -104,6 +140,7 @@ const TaskState = props => {
                 projecttask: state.projecttask,
                 errortask: state.errortask,
                 actualtask: state.actualtask,
+                message: state.message,
                 getTasks,
                 addTask,
                 validateTask,

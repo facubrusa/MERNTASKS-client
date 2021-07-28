@@ -1,29 +1,38 @@
-import React, { Fragment, useContext } from 'react'
+import React, { Fragment, useContext, useEffect } from 'react'
 import Task from './Task';
 import ProjectContext from '../../context/projects/ProjectContext';
 import TaskContext from '../../context/tasks/TaskContext';
+import AlertContext from '../../context/alerts/AlertContext';
+
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 const ListTasks = () => {
     // Extract the states and function from the project context
     const projectContext = useContext(ProjectContext);
-    const { project, showForm, editProject, deleteProject } = projectContext;
+    const { project, editFormProject, deleteProject } = projectContext;
 
     // Extract the states and function from the task context
     const taskContext = useContext(TaskContext);
-    const { projecttask } = taskContext;
+    const { projecttask, message } = taskContext;
 
+    const alertContext = useContext(AlertContext);
+    const { alert, showAlert } = alertContext;
+
+    const nodeRef = React.useRef(null); //With this, I deleted the warning: 'findDOMNode is deprecated in StrictMode' c:
+
+    useEffect(() => {
+        if(message) showAlert(message.msg, message.category);
+        // eslint-disable-next-line
+    }, [message]);
+
+    // Review if we have projects
     if(!project) return <h2>Select the project</h2>;
 
-    // Apply array destructuring
+    // Apply array destructuring and get the [0] position
     const [ actualProject ] = project;
 
-    // Get the name of the project
-    const { name } = actualProject;
-
-    const editActualProject = (idProject) => {
-        console.log(idProject);
-        showForm();
+    const editActualProject = (name) => {
+        editFormProject(name);
     }
 
     return ( 
@@ -31,6 +40,9 @@ const ListTasks = () => {
             <h2>Project: {actualProject.name}</h2>
 
             <ul className="listado-tareas">
+    
+                { alert ? (<div className={`alerta ${alert.category}`}> {alert.msg} </div>) : null }
+
                 {projecttask.length === 0 ?
                     <li className="tarea"><p>The aren't tasks</p></li>
                 :
@@ -38,6 +50,7 @@ const ListTasks = () => {
                     {projecttask.map(task => (
                         <CSSTransition
                             key={task._id}
+                            nodeRef={nodeRef}
                             timeout={300}
                             classNames="tarea"
                         >
@@ -60,7 +73,7 @@ const ListTasks = () => {
             <button
                 type="button"
                 className="btn btn-editar"
-                onClick={() => editActualProject(actualProject._id)}
+                onClick={() => editActualProject(actualProject.name)}
             >Edit Project</button>
 
         </Fragment>

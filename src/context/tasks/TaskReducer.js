@@ -1,4 +1,11 @@
-import { PROJECT_TASKS, ADD_TASK, VALIDATE_TASK, DELETE_TASK, ACTUAL_TASK, EDIT_TASK, CLEAN_TASK } from '../../types/index';
+import { PROJECT_TASKS, 
+    ADD_TASK, 
+    VALIDATE_TASK, 
+    DELETE_TASK, 
+    ACTUAL_TASK, 
+    EDIT_TASK, 
+    CLEAN_TASK,
+    ERROR_TASK } from '../../types/index';
 
 const TaskReducer = (state, action) => {
     switch(action.type) {
@@ -37,6 +44,11 @@ const TaskReducer = (state, action) => {
             return {
                 ...state,
                 actualtask: null
+            }
+        case ERROR_TASK:
+            return {
+                ...state,
+                message: action.payload
             }
         default:
             return state;
