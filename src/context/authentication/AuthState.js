@@ -85,13 +85,13 @@ const AuthState = props => {
             authenticatedUser();
         } catch (error) {
             console.log(error.response);
-            //let responseError = error.response.data;
-            let messageError = 'Error logIn';
-            /* if(responseError.hasOwnProperty('errors')){
+            let responseError = error.response.data;
+            let messageError = '';
+            if(responseError.hasOwnProperty('errors')){
                 messageError = responseError.errors[0].msg;
             } else {
                 messageError = responseError.msg;
-            } */
+            }
             const alert = {
                 msg: messageError,
                 category: 'alert-error'
